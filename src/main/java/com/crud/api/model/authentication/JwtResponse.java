@@ -1,4 +1,4 @@
-package com.crud.api.model;
+package com.crud.api.model.authentication;
 
 import lombok.Data;
 
