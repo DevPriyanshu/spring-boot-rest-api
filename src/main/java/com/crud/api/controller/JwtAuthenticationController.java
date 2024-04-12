@@ -1,13 +1,14 @@
 package com.crud.api.controller;
 
-import com.crud.api.annotations.*;
+import com.crud.api.annotations.accessForSuperAdmin;
+import com.crud.api.exception.ResourceNotFoundException;
 import com.crud.api.model.User;
 import com.crud.api.model.authentication.JwtRequest;
 import com.crud.api.model.authentication.JwtResponse;
 import com.crud.api.model.authentication.UserAuth;
 import com.crud.api.repository.jpa.UserRepository;
 import com.crud.api.service.JwtUserDetailsService;
-import com.crud.api.type.UserRoleType;
+import com.crud.api.service.UserService;
 import com.crud.api.utility.JwtTokenUtil;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,10 +19,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-
-import javax.xml.bind.ValidationException;
 import java.util.Map;
 
 @RestController
@@ -40,35 +38,28 @@ public class JwtAuthenticationController {
     private UserRepository userRepository;
 
     @Autowired
-    private BCryptPasswordEncoder passwordEncoder;
+    private UserService userService;
 
     @PostMapping("/authenticate")
     //@HasRole(UserRoleType.ROLE_SUPER_ADMIN)
     public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtRequest authenticationRequest) {
-
         User user = userRepository.findByUsername(authenticationRequest.getUsername());
+        if(user == null){
+            throw new ResourceNotFoundException("We aren't able to find th user based on provided user name!");
+        }
         Authentication authentication = new UserAuth(user.getId(), user.getUsername(), user.getPassword(), user.getRoles());
         System.out.println(authentication.getAuthorities());
         final String token = jwtTokenUtil.generateToken(authentication, user.getId());
-
         return ResponseEntity.ok(new JwtResponse(token));
     }
 
     @PostMapping("/add-admin")
     @accessForSuperAdmin
     public ResponseEntity<?> addUserWithAdminRole(@RequestBody @Valid User user, @RequestHeader Map<String, String> headers) throws Exception {
-
-        boolean hasRole = user.getRoles().stream()
-                .noneMatch(authority -> user.getRoles().equals(UserRoleType.values()));
-        if (hasRole) {
-            user.setPassword(passwordEncoder.encode(user.getPassword()));
-            String[] jwt = headers.get("authorization").split(" ");
-            user.setCreatedBy(jwtTokenUtil.getUsernameFromToken(jwt[1]));
-            userRepository.save(user);
-            return new ResponseEntity<>(null, HttpStatus.CREATED);
-        } else {
-            throw new ValidationException("User should must contains role!!");
-        }
+        String[] jwt = headers.get("authorization").split(" ");
+        System.out.println(jwtTokenUtil.getAllClaimsFromToken(jwt[1]));
+        User createdUser = userService.saveAdminUser(user, jwt[1]);
+        return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
     }
 
     private void authenticate(String username, String password) throws Exception {

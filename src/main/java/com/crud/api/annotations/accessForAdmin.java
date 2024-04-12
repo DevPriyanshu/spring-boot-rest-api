@@ -5,7 +5,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 @Retention(RetentionPolicy.RUNTIME)
-@PreAuthorize("hasRole(T(com.crud.api.type.UserRoleType).ROLE_ADMIN) " +
-        "|| hasRole(T(com.crud.api.type.UserRoleType).ROLE_USER)")
+@PreAuthorize("hasRole(T(com.crud.api.type.UserRoleType).ROLE_ADMIN)" +
+        "|| hasRole(T(com.crud.api.type.UserRoleType).ROLE_SUPER_ADMIN)")
 public @interface accessForAdmin {
 }

@@ -1,6 +1,7 @@
 package com.crud.api.utility;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Component;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -41,9 +43,18 @@ public class JwtTokenUtil implements Serializable {
         return claimsResolver.apply(claims);
     }
     //for retrieveing any information from token we will need the secret key
-    private Claims getAllClaimsFromToken(String token) {
+    public Claims getAllClaimsFromToken(String token) {
         return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
     }
+
+//    public List<String> getUserRolesFromToken(String jwtToken) {
+//        Jws<Claims> claimsJws = Jwts.parserBuilder()
+//                .setSigningKey(secretKey)
+//                .build()
+//                .parseClaimsJws(jwtToken);
+//        Claims claims = claimsJws.getBody();
+//        return claims.get(ROLES_CLAIM_KEY, List.class);
+//    }
 
     //check if the token has expired
     private Boolean isTokenExpired(String token) {

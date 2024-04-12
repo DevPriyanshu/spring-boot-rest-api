@@ -33,6 +33,14 @@ public class GlobalExceptionHandler {
     return new ResponseEntity<>(errorDetails, HttpStatus.INTERNAL_SERVER_ERROR);
   }
 
+  @ExceptionHandler(ValidationException.class)
+  public ResponseEntity<?> validationException(ValidationException ex, WebRequest request) {
+    logger.log(Level.SEVERE, "ValidationException occurred: " + ex.getMessage(), ex);
+    ErrorResponse errorDetails =
+            new ErrorResponse(new Date(), HttpStatus.BAD_REQUEST.toString(), ex.getMessage(), request.getDescription(false));
+    return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
+  }
+
   @ExceptionHandler(UnAuthenticatedException.class)
   public ResponseEntity<?> unAuthenticatedException(
           UnAuthenticatedException ex, WebRequest request) {

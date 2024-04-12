@@ -18,4 +18,8 @@ public class UserSpecification {
             return criteriaBuilder.and(p1, p2);
         });
     }
+
+    public Specification<User> userNameIs(String userName) {
+        return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("username"), userName);
+    }
 }

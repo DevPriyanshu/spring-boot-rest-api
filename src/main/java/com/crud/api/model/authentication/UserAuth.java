@@ -22,9 +22,7 @@ public class UserAuth implements Authentication {
     }
 
     public UserAuth(Long userId, String username, String password, Set<Role> roles) {
-        roles.forEach(role -> {
-            authorities.add(new SimpleGrantedAuthority(role.getRoleType().toString()));
-        });
+        roles.forEach(role -> authorities.add(new SimpleGrantedAuthority(role.getRoleType().toString())));
         this.user = new AppUserDetails(userId, username, password, authorities);
     }
     @Override

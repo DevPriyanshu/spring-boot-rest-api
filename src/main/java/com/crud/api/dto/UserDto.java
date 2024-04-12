@@ -1,8 +1,10 @@
 package com.crud.api.dto;
 
+import com.crud.api.model.Role;
 import lombok.Data;
 
 import java.util.Date;
+import java.util.Set;
 
 @Data
 public class UserDto {
@@ -14,4 +16,5 @@ public class UserDto {
     private String createdBy;
     private Date updatedAt;
     private String updatedBy;
+    private Set<Role> roles;
 }
